@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: greeter-com
+spec:
+  secretName: greetersecret
+  commonName: greeter.default.svc
+  dnsNames:
+    - greeter
+    - greeter.default.svc
+    - greeter.default.svc.cluster.local
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
+    group: cert-manager.io

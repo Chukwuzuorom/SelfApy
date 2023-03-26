@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: greeter
+  labels:
+    app: greeting
+spec:
+  selector:
+    app: greeter
+  ports:
+    - name: https
+      port: 443
+      targetPort: 80
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: greeter
+  labels:
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: greeter
+  template:
+    metadata:
+      labels:
+        app: greeter
+        version: v1
+    spec:
+      containers:
+        - name: greeting
+          image: "chuzy/greeterservice:1.1"
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: ca-crt
+              mountPath: /etc/ssl/certs/ca.crt
+              subPath: ca.crt
+              readOnly: true
+            - name: tls-crt
+              mountPath: /etc/ssl/certs/tls.crt
+              subPath: tls.crt
+              readOnly: true
+            - name: tls-key
+              mountPath: /etc/ssl/certs/tls.key
+              subPath: tls.key
+              readOnly: true
+      volumes:
+        - name: cert
+          secret:
+           secretName: greetersecret
+        - name: ca-crt
+          secret:
+           items:
+           - key: ca.crt
+             path: ca.crt
+           secretName: greetersecret
+        - name: tls-crt
+          secret:
+           items:
+           - key: tls.crt
+             path: tls.crt
+           secretName: greetersecret
+        - name: tls-key
+          secret:
+           items:
+           - key: tls.key
+             path: tls.key
+           secretName: greetersecret
